@@ -394,7 +394,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
             LOG.warn("Not starting discovery, because already scanning.");
             return;
         }
-        startDiscovery(Scanning.SCANNING_BT);
+        startDiscovery(Scanning.SCANNING_BTLE);
     }
 
     private void startDiscovery(Scanning what) {

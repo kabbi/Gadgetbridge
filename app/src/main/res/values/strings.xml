@@ -750,4 +750,5 @@
         <item quantity="many">%d hours</item>
         <item quantity="other">%d hours</item>
     </plurals>
+    <string name="devicetype_uwatch2">Umidigi Uwatch2</string>
 </resources>

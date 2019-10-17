@@ -15,8 +15,6 @@
  */
 package nodomain.freeyourgadget.gadgetbridge.daogen;
 
-import java.util.Date;
-
 import de.greenrobot.daogenerator.DaoGenerator;
 import de.greenrobot.daogenerator.Entity;
 import de.greenrobot.daogenerator.Index;
@@ -72,6 +70,7 @@ public class GBDaoGenerator {
         addXWatchActivitySample(schema, user, device);
         addZeTimeActivitySample(schema, user, device);
         addID115ActivitySample(schema, user, device);
+        addUwatchActivitySample(schema, user, device);
 
         addCalendarSyncState(schema, device);
         addAlarms(schema, user, device);
@@ -327,6 +326,17 @@ public class GBDaoGenerator {
         activitySample.addIntProperty("caloriesBurnt");
         activitySample.addIntProperty("distanceMeters");
         activitySample.addIntProperty("activeTimeMinutes");
+        return activitySample;
+    }
+
+    private static Entity addUwatchActivitySample(Schema schema, Entity user, Entity device) {
+        Entity activitySample = addEntity(schema, "UwatchActivitySample");
+        activitySample.implementsSerializable();
+        addCommonActivitySampleProperties("AbstractActivitySample", activitySample, user, device);
+        activitySample.addIntProperty(SAMPLE_STEPS).notNull().codeBeforeGetterAndSetter(OVERRIDE);
+        activitySample.addIntProperty(SAMPLE_RAW_KIND).notNull().codeBeforeGetterAndSetter(OVERRIDE);
+        activitySample.addIntProperty("caloriesBurnt");
+        activitySample.addIntProperty("distanceMeters");
         return activitySample;
     }
 

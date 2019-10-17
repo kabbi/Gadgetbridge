@@ -50,6 +50,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.miscale2.MiScale2Dev
 import nodomain.freeyourgadget.gadgetbridge.service.devices.no1f1.No1F1Support;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.pebble.PebbleSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.roidmi.RoidmiSupport;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.uwatch.Uwatch2Support;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.vibratissimo.VibratissimoSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.watch9.Watch9DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xwatch.XWatchSupport;
@@ -203,6 +204,9 @@ public class DeviceSupportFactory {
                         break;
                     case MAKIBESHR3:
                         deviceSupport = new ServiceDeviceSupport(new MakibesHR3DeviceSupport(), EnumSet.of(ServiceDeviceSupport.Flags.BUSY_CHECKING));
+                        break;
+                    case UWATCH2:
+                        deviceSupport = new ServiceDeviceSupport(new Uwatch2Support(), EnumSet.of(ServiceDeviceSupport.Flags.BUSY_CHECKING));
                         break;
                 }
                 if (deviceSupport != null) {
