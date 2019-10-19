@@ -98,7 +98,7 @@ public class Uwatch2Coordinator extends AbstractDeviceCoordinator {
 
     @Override
     public int getAlarmSlotCount() {
-        return 0;
+        return 1;
     }
 
     @Override

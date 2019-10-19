@@ -22,6 +22,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 import android.net.Uri;
 
+import java.time.Clock;
+import java.time.Instant;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.slf4j.Logger;
@@ -103,12 +106,15 @@ public class Uwatch2Support extends AbstractBTLEDeviceSupport {
 
     @Override
     protected TransactionBuilder initializeDevice(TransactionBuilder builder) {
+        onSetTime();
         builder.add(new SetDeviceStateAction(getDevice(), GBDevice.State.INITIALIZING, getContext()));
         builder.notify(getCharacteristic(UwatchService.UUID_CHARACTERISTIC_STEPS_INFO),true);
         builder.notify(getCharacteristic(UwatchService.UUID_CHARACTERISTIC_UNK2),true);
         requestDeviceInfo(builder);
         setInitialized(builder);
         batteryInfoProfile.requestBatteryInfo(builder);
+
+
         return builder;
     }
 
@@ -145,11 +151,28 @@ public class Uwatch2Support extends AbstractBTLEDeviceSupport {
 
     @Override
     public void onSetTime() {
+        LOG.info("set time fired");
+//        Long ts = System.currentTimeMillis()/1000;
+        Long ts = Instant.now().toEpochMilli()/1000;
+        //ts -= 5*60*60;
+        LOG.info("time: " + ts.toString());
 
+        getQueue().clear();
+        BluetoothGattCharacteristic cmdChar = getCharacteristic(UwatchService.UUID_CHARACTERISTIC_CONTROL_POINT);
+
+        TransactionBuilder builder = new TransactionBuilder("findDevice");
+        builder.write(cmdChar, new byte[]{(byte)0xfe, (byte)0xea, 0x10, 0x0a, 0x31,
+                (byte)((ts>>>24)&0xff),
+                (byte)((ts>>>16)&0xff),
+                (byte)((ts>>>8 )&0xff),
+                (byte)((ts>>>0 )&0xff),
+                0x03});
+        builder.queue(getQueue());
     }
 
     @Override
     public void onSetAlarms(ArrayList<? extends Alarm> alarms) {
+        LOG.info("set alarms fired");
 
     }
 
@@ -236,6 +259,8 @@ public class Uwatch2Support extends AbstractBTLEDeviceSupport {
         TransactionBuilder builder = new TransactionBuilder("findDevice");
         builder.write(cmdChar, new byte[]{(byte)0xfe, (byte)0xea, 0x10, 0x05, 0x61});
         builder.queue(getQueue());
+
+
     }
 
     @Override
