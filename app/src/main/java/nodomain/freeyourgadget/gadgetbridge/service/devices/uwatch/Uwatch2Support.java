@@ -22,7 +22,8 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 import android.net.Uri;
 
-import java.time.Clock;
+
+import java.nio.ByteBuffer;
 import java.time.Instant;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -173,8 +174,39 @@ public class Uwatch2Support extends AbstractBTLEDeviceSupport {
     @Override
     public void onSetAlarms(ArrayList<? extends Alarm> alarms) {
         LOG.info("set alarms fired");
-
+        TransactionBuilder builder = new TransactionBuilder("setAlarms");
+        for (Alarm alarm : alarms) {
+            setAlarm(alarm, alarm.getPosition() + 1, builder);
+        }
     }
+    private void setAlarm(Alarm alarm, int index, TransactionBuilder builder) {
+        // Shift the GB internal repetition mask to match the device specific one.
+        byte repetitionMask = (byte) ((alarm.getRepetition() << 1) | (alarm.isRepetitive() ? 0x80 : 0x00));
+        repetitionMask |= (alarm.getRepetition(Alarm.ALARM_SUN) ? 0x01 : 0x00);
+        if (0 < index && index < 2) {
+            byte[] alarmValue = new byte[]{(byte) 0,
+                    (byte) (alarm.getEnabled() ? 0x01 : 0x00),
+                    0x01, //date flag
+                    0x4,0x3, //hour,minutes
+                    0,0, //date
+
+                    repetitionMask,
+                };
+            BluetoothGattCharacteristic cmdChar = getCharacteristic(UwatchService.UUID_CHARACTERISTIC_CONTROL_POINT);
+
+            ByteBuffer bb = ByteBuffer.allocate(5+3*alarmValue.length)
+                    .put(new byte[]{(byte)0xfe,
+                            (byte)0xea, 0x10, (byte)(5+3*alarmValue.length)
+                            , 0x11})
+                    .put(alarmValue)
+                    .put(alarmValue)
+                    .put(alarmValue)
+                    ;
+
+            builder.write(cmdChar, bb.array());
+        }
+    }
+
 
     @Override
     public void onSetCallState(CallSpec callSpec) {
